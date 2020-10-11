@@ -4,26 +4,41 @@
 const fs = require("fs");
 
 // VARIABLES
-const params = process.argv.filter((p, i) => i > 1);
+const params = process.argv.filter((p, i) => i > 1).reduce((acum, param, i, params) => {
+    if (i == 0) {
+        acum["action"] = param;
+    } else if (param.indexOf("-b") === 0) {
+        acum["boilerplate"] = null; 
+    } else {
+        if (acum["boilerplate"] === null) {
+            acum["boilerplate"] = param;
+        } else {
+            acum["target"] = param;
+        }
+    }
+    return acum;
+}, new Object());
 
-if (params.length) {
-    const action = params[0];
-    switch (action) {
+if (Object.keys(params).length) {
+    switch (params.action) {
       case "serve":
-        process.env.NODE_ENV = params[1] || "dev";
+        process.env.NODE_ENV = "dev";
         require("../tasks.js").serve();
         break;
     case "build":
-        process.env.NODE_ENV = params[1] || "pro";
-        require("../tasks.js").buld();
+        process.env.NODE_ENV = params.target || "pro";
+        require("../tasks.js").build();
         break;
     case "init":
-        const dir = params[1] || ".";
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
+        if (!fs.existsSync(params.target)) {
+            fs.mkdirSync(params.target);
         }
-        process.chdir(dir);
+        process.chdir(params.target);
+        process.env.BOILERPLATE = params.boilerplate || "default";
         require("../tasks.js").init();
+        break;
+    default:
+        console.error("[ERROR]: Unrecognized command.");
         break;
     }
 } else {
