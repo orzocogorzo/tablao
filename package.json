@@ -1,0 +1,41 @@
+{
+    "dependencies": {
+        "vinyl-source-stream": "^2.0.0",
+        "vinyl-buffer": "^1.0.1",
+        "stylus": "^0.54.7",
+        "gulp-uglify": "^3.0.2",
+        "gulp-token-replace": "^1.1.5",
+        "gulp-stylus": "^2.7.0",
+        "gulp-sourcemaps": "^2.6.5",
+        "gulp-rename": "^1.4.0",
+        "gulp-image": "^5.1.0",
+        "gulp-html-minifier": "^0.1.8",
+        "gulp-connect": "^5.7.0",
+        "gulp-cli": "^2.2.0",
+        "gulp-babel": "^8.0.0",
+        "gulp": "^4.0.2",
+        "envify": "^4.1.0",
+        "del": "^5.1.0",
+        "browserify": "^16.5.0",
+        "babel": "^6.23.0",
+        "@babel/preset-env": "^7.6.3",
+        "@babel/core": "^7.6.3"
+    },
+    "homepage": "https://github.com/orzocogorzo/tablao#readme",
+    "bugs": {
+        "url": "https://github.com/orzocogorzo/tablao/issues"
+    },
+    "license": "GPL-3.0",
+    "author": "Orzo Cogorzo",
+    "repository": {
+        "url": "git+https://github.com/orzocogorzo/tablao.git",
+        "type": "git"
+    },
+    "bin": {
+        "tablao": "bin/index.js"
+    },
+    "main": "index.js",
+    "description": "Lightweight web development workshop, on top of gulp, browserify and stylus, extendible with boilerplates.",
+    "version": "1.0.0",
+    "name": "tablao"
+}
