@@ -31,7 +31,7 @@ const rc = (function () {
   try {
     var user;
     try {
-        user = require(path.join(cwd, "tatamirc.js"));
+        user = require(path.join(cwd, "tablaorc.js"));
     } catch (err) {
         user = new Object();
     }
@@ -40,8 +40,8 @@ const rc = (function () {
     });
     return user;
   } catch (e) {
-    console.error(e);
-    console.warn("Not tatamirc.js file found");
+      console.error("[ERROR]: ", e);
+    console.warn("[WARN]: Not tablaorc.js file found. Tablao will use the default config.");
     return template;
   }
 })();
@@ -49,36 +49,32 @@ const rc = (function () {
 function globals () {
   let globals;
   try {
-      globals = require(
-          process.env.NODE_ENV === "pro" ?
-              path.join(cwd, "globals/global.pro.js") : process.env.NODE_ENV === "pre" ?
-              path.join(cwd, "globals/global.pre.js") : process.env.NODE_ENV === "dev" ?
-              path.join(cwd, "globals/global.dev.js") : path.join(cwd, "globals/global.custom.js")
-      );
+    globals = require(path.join(cwd, `globals/global.${process.env.NODE_ENV}.js`));
 
     for (let k in globals) {
       globals[k.toUpperCase()] = globals[k];
       delete globals[k.toLowerCase()];
       process.env[k.toUpperCase()] = process.env[k.toUpperCase()] || globals[k.toUpperCase()];
     }
-
   } catch (err) {
-    console.log(err);
-    throw new Error("No build folder found. Please define your build environment config files into a build folder on your root directory.");
+    throw new Error("[ERROR]: No build folder found. Please define your build environment config files into a build folder on your root directory.");
   }
 
   try {
-      globals.ENVIRON = require(path.join(cwd, "envs.js"))[process.env.NODE_ENV];
+    globals.ENVIRON = require(path.join(cwd, "envs.js"))[process.env.NODE_ENV];
     return globals;
   } catch (err) {
-    console.log(err);
-    throw new Error("Not envs.js found. Please define your client environment variables in a file and name it envs.js on your root directory.");
+    throw new Error("[ERROR]: Not envs.js found. Please define your client environment variables in a file and name it envs.js on your root directory.");
   }
 }
 globals.description = "Retrive object from global files.";
 
 function init (done) {
-    return src(path.join(__dirname, "boilerplate/**/*"), {read: true})
+    if (!fs.existsSync(path.join(__dirname, `boilerplates/${process.env.BOILERPLATE}`))) {
+        console.warn("[WARN]: Boilerplate not found. Tablao will continue with the default boilerplate.");
+        process.env.BOILERPLATE = "default";
+    }
+    return src(path.join(__dirname, `boilerplates/${process.env.BOILERPLATE}/**/*`), {read: true})
         .pipe(dest(cwd));
 }
 init.description = "Create the boilerplate directory.";
@@ -92,8 +88,6 @@ function clean (done) {
   });
 }
 clean.description = "Remove dist folder contents";
-// exports.clean = clean;
-
 
 function dist (done) {
   const statics = path.join(rc.dist, "statics");
@@ -101,7 +95,6 @@ function dist (done) {
     .pipe(dest(statics));
 };
 dist.description = "Create dist directory structure";
-// exports.dist = dist;
 
 function deploy (done) {
   console.log("[DEPLOY TASK]");
@@ -111,12 +104,11 @@ function deploy (done) {
     .pipe(dest(path.join(rc.deploy)));
 }
 deploy.description = 'Deploy bundling to the server';
-// exports.deploy;
 
 function js (done) {
   const b = browserify({
       entries: path.join(rc.src, "index.js"),
-      debug: true
+      debug: process.env.NODE_ENV === "dev"
   });
 
   b.transform(envify(globals()));
@@ -138,7 +130,6 @@ function js (done) {
   return proc.pipe(dest(rc.dist));
 }
 js.description = 'Bundle js files, compile them with buble and uglify and move the output to the dist folder';
-// exports.js = js;
 
 function css (done) {
   return src(path.join(rc.src, "index.styl"))
@@ -154,7 +145,6 @@ function css (done) {
     .pipe(dest(rc.dist));
 }
 css.descriptions = "Bundle all styuls files, compile them and move the output to the dist folder";
-// exports.css = css;
 
 function statics (done) {
   return src(path.join(rc.statics, "\*\*/\*"))
@@ -164,7 +154,6 @@ function statics (done) {
 }
 statics.description = "Move statics to dist folder";
 
-
 function html (done) {
   return src(path.join(rc.src, "index.html"))
     .pipe(replace({global: globals()}))
@@ -173,30 +162,19 @@ function html (done) {
     .pipe(dest(rc.dist));
 }
 html.description = "Minify index.html and put it on the dist folder";
-// exports.html = html;
 
 const bundle = parallel(html, js, css, statics);
-//  exports.bundle = bundle;
 
 const pipeline = series(clean, dist, bundle);
-// exports.pipeline = pipeline;
-
 
 const serve = series(pipeline, function serve (done) {
   connect.server({
     livereload: true,
-    port: 8050,
+    port: rc.port,
     root: rc.dist,
     debug: true,
-    name: 'lite-dev',
-    middleware: function (connect, opt) {
-      return [function (req, res, next) {
-        res.setHeader("Cache-Control", "private, no-cache, no-store, must-revalidate");
-        res.setHeader("Pragme", "no-cache");
-        res.setHeader("Expires", "-1");
-        next();
-      }];
-    }
+    name: "tablao",
+    middleware: rc.middleware
   });
 
   watch(path.join(rc.src, "index.html"), series(html));
@@ -210,7 +188,7 @@ exports.serve = serve;
 const build = series(pipeline, deploy, function (done) {
     return done();
 });
-build.description = "execute build rutine and deploy the result on the server";
+build.description = "Execute build rutine and deploy the result on the server";
 exports.build = build;
 
 
