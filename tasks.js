@@ -22,11 +22,11 @@ const connect = require('gulp-connect');
 const rename = require('gulp-rename');
 
 const cwd = process.cwd();
+const distDir = path.join(cwd, ".dist");
 const rc = (function () {
   const template = {
-    dist: "dist",
     src: "src",
-    statics: "statics"
+    public: "public"
   };
   try {
     var user;
@@ -71,8 +71,8 @@ globals.description = "Retrive object from global files.";
 
 function init (done) {
     if (!fs.existsSync(path.join(__dirname, `boilerplates/${process.env.BOILERPLATE}`))) {
-        console.warn("[WARN]: Boilerplate not found. Tablao will continue with the default boilerplate.");
-        process.env.BOILERPLATE = "default";
+        console.warn("[WARN]: Boilerplate not found. Tablao will continue with the default vanilla.js boilerplate.");
+        process.env.BOILERPLATE = "vanilla";
     }
     return src(path.join(__dirname, `boilerplates/${process.env.BOILERPLATE}/**/*`), {read: true})
         .pipe(dest(cwd));
@@ -82,7 +82,7 @@ exports.init = init;
 
 function clean (done) {
   return del([
-    path.join(rc.dist + "\*")
+    path.join(distDir + "\*")
   ], {
     force: true
   });
@@ -90,18 +90,18 @@ function clean (done) {
 clean.description = "Remove dist folder contents";
 
 function dist (done) {
-  const statics = path.join(rc.dist, "statics");
+  if (!fs.existsSync(distDir)) {
+    fs.mkdirSync(distDir);
+  }
+  const public = path.join(distDir, "public");
   return src("*.*", {read: false})
-    .pipe(dest(statics));
+    .pipe(dest(public));
 };
 dist.description = "Create dist directory structure";
 
 function deploy (done) {
-  console.log("[DEPLOY TASK]");
-  console.log("FROM: ", rc.dist);
-  console.log("TO: ", rc.deploy);
-  return src(path.join(rc.dist, "\*"))
-    .pipe(dest(path.join(rc.deploy)));
+  return src(path.join(distDir, "\*"))
+    .pipe(dest(path.join(rc.dist)));
 }
 deploy.description = 'Deploy bundling to the server';
 
@@ -127,7 +127,7 @@ function js (done) {
     proc = proc.pipe(connect.reload());
   }
 
-  return proc.pipe(dest(rc.dist));
+  return proc.pipe(dest(distDir));
 }
 js.description = 'Bundle js files, compile them with buble and uglify and move the output to the dist folder';
 
@@ -142,28 +142,28 @@ function css (done) {
     .pipe(sourcemaps.write())
     .pipe(rename('bundle.css'))
     .pipe(connect.reload())
-    .pipe(dest(rc.dist));
+    .pipe(dest(distDir));
 }
 css.descriptions = "Bundle all styuls files, compile them and move the output to the dist folder";
 
-function statics (done) {
-  return src(path.join(rc.statics, "\*\*/\*"))
+function public (done) {
+  return src(path.join(rc.public, "\*\*/\*"))
     .pipe(image())
     .pipe(connect.reload())
-    .pipe(dest(path.join(rc.dist, rc.statics)));
+    .pipe(dest(path.join(distDir, rc.public)));
 }
-statics.description = "Move statics to dist folder";
+public.description = "Move public to dist folder";
 
 function html (done) {
   return src(path.join(rc.src, "index.html"))
     .pipe(replace({global: globals()}))
     .pipe(htmlmin({collapseWhitespace: true}))
     .pipe(connect.reload())
-    .pipe(dest(rc.dist));
+    .pipe(dest(distDir));
 }
 html.description = "Minify index.html and put it on the dist folder";
 
-const bundle = parallel(html, js, css, statics);
+const bundle = parallel(html, js, css, public);
 
 const pipeline = series(clean, dist, bundle);
 
@@ -171,7 +171,7 @@ const serve = series(pipeline, function serve (done) {
   connect.server({
     livereload: true,
     port: rc.port,
-    root: rc.dist,
+    root: distDir,
     debug: true,
     name: "tablao",
     middleware: rc.middleware
@@ -180,7 +180,7 @@ const serve = series(pipeline, function serve (done) {
   watch(path.join(rc.src, "index.html"), series(html));
   watch(path.join(rc.src, "\*\*/\*.js"), series(js));
   watch(path.join(rc.src, "\*\*/\*.styl|css"), series(css));
-  watch(path.join(rc.statics, "\*\*/\*"), series(statics));
+  watch(path.join(rc.public, "\*\*/\*"), series(public));
 });
 serve.description = "Setup a static server, start a livereload listener and put gulp watching for changes";
 exports.serve = serve;

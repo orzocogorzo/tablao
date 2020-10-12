@@ -1,12 +1,11 @@
 // TABLAO CONFIGURATION FILE WITH INFORMATION
-// ABOUT THE FOLDER STRUCTURE
+// ABOUT THE PROJECT
 
 module.exports = {
-    dist: "dist",
     src: "src",
-    statics: "statics",
+    public: "public",
+    dist: "/path/to/package/distribution",
     port: 8050,
-    deploy: "/home/orzo/Desktop/package",
     middleware: function (connect, opt) {
         // Example middleware to disable cache on local environment.
         return [function (req, res, next) {

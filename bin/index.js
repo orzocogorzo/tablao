@@ -30,6 +30,7 @@ if (Object.keys(params).length) {
         require("../tasks.js").build();
         break;
     case "init":
+        params.target = params.target || ".";
         if (!fs.existsSync(params.target)) {
             fs.mkdirSync(params.target);
         }

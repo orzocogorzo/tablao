@@ -50,8 +50,8 @@ This file gather all requested information of the project. Formatted as a javasc
 module.exports = {
   dist: "distfolder", // Destination folder where the compilation process has to place its output.
   src: "srcfolder", // Source folder from where the compilation process has to find its inputs.
-  statics: "staticsfolder", // Source folder from where the compilation process has to find the \
-  // statics files like media, data or fonts.
+  public: "publicfolder", // Source folder from where the compilation process has to find the \
+  // public files, like media, data or fonts, required by the client.
   port: 8050, // The port where the server will be faced.
   middleware: function (connect, opt) {
     return [
@@ -67,7 +67,7 @@ module.exports = {
 ```
 
 #### envs.js
-The *envs.js* file contains information about the environments where the application will be setted up. It has the following format:
+The *envs.js* file contains information, to be reacheble from the client, about the environments where the application will be setted up with. It has the following format:
 
 ```javascript
 module.exports = {
@@ -75,30 +75,30 @@ module.exports = {
     name: "development",
     host: "127.0.0.1",
     port: 8050,
-    apiURL: "/statics/data/",
-    staticsURL: "/statics/"
+    apiURL: "/public/data/",
+    publicURL: "/public/"
   },
   pre: {
     name: "preproduction",
     host: "http://pre.domain.com/path/",
     port: null,
     apiURL: "http://pre.domain.com/api/",
-    staticsURL: "http://pre.domain.com/statics/"
+    publicURL: "http://pre.domain.com/public/"
   },
   pro: {
     name: "production",
     host: "https://domain.com/path/",
     port: null,
     apiURL: "https://domain.com/api/",
-    staticsURL: "https://domain.com/statics/"
+    publicURL: "https://domain.com/public/"
   }
 }
 ```
 
-Each entry of the object, identifyed by a key, must gather the information about one environment. The key will be used by **tablao** to identify this environment and know things like on which port it have to face the development server. **The development environiment must be identifyed by the key `dev` and it should be always present on the object**. This keys must match with the *globals* file names to allow **tablao** to know what global variables should it use on the compilation process. At least, this object will be placed, on the client, on the global scope varibale `_env` allowing the client to realise how to reach the server.
+Each entry of the object, identifyed by a key, must gather the information about one environment. **The development environment must be identifyed by the key `dev` and it should be always present on the object** because its the key that **tablao** is going to search when it start the development server. This keys must match with the *globals* file names to allow **tablao** to know what global variables should it use on the compilation process. At least, this object will be placed, on the client, on the global scope varibale `_env` allowing the client to realise how to reach the server.
 
 #### globals
-Inside the folder *globals* it must be, at least, one `global.<env>.js` file with global variables that can be reached from arround on the compilation process. Formatted as a javascript object, it should fits the following format:
+Inside the folder *globals* it must be, at least, one `global.<env>.js` file with global variables that can be reached from arround on the compilation process. Like the envs.js file, **it's important to get, at least, the `global.env.js` file**. Formatted as a javascript object, it should fits the following format:
 
 ```javascript
 module.exports = {
@@ -107,4 +107,4 @@ module.exports = {
 }
 ```
 
-This variables will be accessible from the js, html and stylus files. On js their'll be publics throw the `process.env` object. From the html files you have to follow the syntax `{{KEY}}` to access the values. At last, from stylus files, you can get the values writting the KEY name there where you want to place the value.
+This variables will be accessible from the js, html and stylus files on the compilation task. On js their'll be publics throw the `process.env` object. From the html files you have to follow the syntax `{{KEY}}` to access the values. At last, from stylus files, you can get the values writting the KEY name there where you want to place the value.
