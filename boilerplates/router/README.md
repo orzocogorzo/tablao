@@ -135,4 +135,8 @@ BaseView.prototype.onRemove();
 
 #### Router
 
-See [Navigo](https://github.com/krasimir/navigo) to more references.
+See [Navigo](https://github.com/krasimir/navigo) for more references.
+
+#### Templates
+
+See [Mustache](https://github.com/janl/mustache.js/) for more references.
