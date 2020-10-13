@@ -50,6 +50,7 @@ BaseView.extend(view: function);
 This method is a static method, not to be inherit on the child views, and allow to extend new views with the BaseView attributes. It waits for an view function as an input parametter.
 
 ```javascript
+// Example about how to extend a new View prototype from the BaseView prototype.
 const View = BaseView.extend(function (el, template) {
     // Do something on the initialization
 });
@@ -61,6 +62,7 @@ View.prototype.onRender = function () {
 View.prototype.customMethod = function () {
     // Do something
 }
+```
 
 **render**
 ```javascript

@@ -98,7 +98,7 @@ module.exports = {
 Each entry of the object, identifyed by a key, must gather the information about one environment. **The development environment must be identifyed by the key `dev` and it should be always present on the object** because its the key that **tablao** is going to search when it start the development server. This keys must match with the *globals* file names to allow **tablao** to know what global variables should it use on the compilation process. At least, this object will be placed, on the client, on the global scope varibale `_env` allowing the client to realise how to reach the server.
 
 #### globals
-Inside the folder *globals* it must be, at least, one `global.<env>.js` file with global variables that can be reached from arround on the compilation process. Like the envs.js file, **it's important to get, at least, the `global.env.js` file**. Formatted as a javascript object, it should fits the following format:
+Inside the folder *globals* it must be, at least, one `global.<env>.js` file with global variables that can be reached from arround on the compilation process. Like the envs.js file, **it's important to get, at least, the `global.dev.js` file**. Formatted as a javascript object, it should fits the following format:
 
 ```javascript
 module.exports = {
