@@ -9,7 +9,6 @@ const Footer = (function () {
 
     Footer.prototype.onRender = function onRender () {
         // TO OVERWRITE
-        console.log("Footer rendered");
     }
 
     return Footer;

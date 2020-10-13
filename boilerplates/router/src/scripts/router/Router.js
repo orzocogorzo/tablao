@@ -7,16 +7,19 @@ const Footer = require("../components/Footer.js");
 
 // VIEWS
 const Home = require("../views/Home.js");
-const Page1 = require("../views/Page1.js");
+const Quotes = require("../views/Quotes.js");
 
 
 const Router = (function () {
+    // PRIVATE CODE BLOCK
     function beforeNavigate (cssEl) {
         const el = document.querySelector(cssEl);
         if (el && this.views.get(el)) {
             this.views.get(el).remove();
         }
     }
+    const cache = new Map();
+    // END OF PRIVATE CODE BLOCK
     
     const Router = function Router () {
         const self = this;
@@ -26,7 +29,7 @@ const Router = (function () {
         this.navigo.on("home", self.onNavigate("home.html", "#content", Home))
             .resolve();
 
-        this.navigo.on("page1", self.onNavigate("page1.html", "#content", Page1))
+        this.navigo.on("quotes", self.onNavigate("quotes.html", "#content", Quotes))
             .resolve();
 
         self.ajax("templates/header.html").then(function (template) {
@@ -45,13 +48,21 @@ const Router = (function () {
     Router.prototype.onNavigate = function onNavigate (templateName, cssEl, View) {
         const self = this;
         return function () {
-            self.ajax("templates/" + templateName)
+            if (cache.get(templateName)) {
+                beforeNavigate.call(self, cssEl);
+                const el = document.querySelector(cssEl);
+                const view = new View(el, cache.get(templateName));
+                self.views.set(el, view);
+            } else {
+                self.ajax("templates/" + templateName)
                 .then(function (template) {
+                    cache.set(templateName, template);
                     beforeNavigate.call(self, cssEl);
                     const el = document.querySelector(cssEl);
                     const view = new View(el, template);
-                    self.views.set(el, view);
-                });
+                    self.views.set(el, view);    
+                });   
+            }
         }
     }
 
