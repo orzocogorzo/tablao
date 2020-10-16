@@ -120,7 +120,7 @@ BaseView.prototype.onUpdate();
 
 **beforeUpdate**
 ```javascript
-BaseView.prototype.onUpdate();
+BaseView.prototype.beforeUpdate();
 ```
 
 **onRemove**
@@ -130,7 +130,7 @@ BaseView.prototype.onRemove();
 
 **beforeRemove**
 ```javascript
-BaseView.prototype.onRemove();
+BaseView.prototype.beforeRemove();
 ```
 
 #### Router
