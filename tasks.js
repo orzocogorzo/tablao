@@ -12,7 +12,6 @@ const envify = require("envify/custom");
 const htmlmin = require('gulp-htmlmin');
 const babel = require('gulp-babel');
 const stylus = require('gulp-stylus');
-const image = require('gulp-imagemin');
 const vinylSource = require('vinyl-source-stream');
 const vinylBuffer = require('vinyl-buffer');
 const sourcemaps = require('gulp-sourcemaps');
@@ -148,17 +147,7 @@ css.descriptions = "Bundle all styuls files, compile them and move the output to
 
 function public (done) {
   return src(path.join(rc.public, "\*\*/\*"))
-        .pipe(image([
-            image.gifsicle({interlaced: true}),
-            image.mozjpeg({quality: 80, progressive: true}),
-            image.optipng({optimizationLevel: 5}),
-            image.svgo({
-                plugins: [
-                    {removeViewBox: true},
-                    {cleanupIDs: true}
-                ]
-            })
-        ])).pipe(connect.reload())
+        .pipe(connect.reload())
         .pipe(dest(path.join(distDir, rc.public)));
 }
 public.description = "Move public to dist folder";
