@@ -9,7 +9,7 @@ const browserify = require('browserify');
 const envify = require("envify/custom");
 
 // GULP PLUGINS
-const htmlmin = require('gulp-html-minifier');
+const htmlmin = require('gulp-htmlmin');
 const babel = require('gulp-babel');
 const stylus = require('gulp-stylus');
 const image = require('gulp-image');
