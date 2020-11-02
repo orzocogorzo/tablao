@@ -35,6 +35,6 @@
     },
     "main": "index.js",
     "description": "Lightweight web development workshop, on top of gulp, browserify and stylus, extendible with boilerplates.",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "name": "tablao"
 }

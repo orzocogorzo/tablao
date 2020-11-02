@@ -21,7 +21,7 @@ const connect = require('gulp-connect');
 const rename = require('gulp-rename');
 
 const cwd = process.cwd();
-const distDir = path.join(cwd, ".dist");
+const distDir = path.resolve(path.join(cwd, ".dist"));
 const rc = (function () {
   const template = {
     src: "src",
@@ -30,7 +30,7 @@ const rc = (function () {
   try {
     var user;
     try {
-        user = require(path.join(cwd, "tablaorc.js"));
+        user = require(path.resolve(path.join(cwd, "tablaorc.js")));
     } catch (err) {
         user = new Object();
     }
@@ -48,7 +48,7 @@ const rc = (function () {
 function globals () {
   let globals;
   try {
-    globals = require(path.join(cwd, `globals/global.${process.env.NODE_ENV}.js`));
+    globals = require(path.resolve(path.join(cwd, `globals/global.${process.env.NODE_ENV}.js`)));
 
     for (let k in globals) {
       globals[k.toUpperCase()] = globals[k];
@@ -60,7 +60,7 @@ function globals () {
   }
 
   try {
-    globals.ENVIRON = require(path.join(cwd, "envs.js"))[process.env.NODE_ENV];
+    globals.ENVIRON = require(path.resolve(path.join(cwd, "envs.js")))[process.env.NODE_ENV];
     return globals;
   } catch (err) {
     throw new Error("[ERROR]: Not envs.js found. Please define your client environment variables in a file and name it envs.js on your root directory.");
@@ -69,11 +69,11 @@ function globals () {
 globals.description = "Retrive object from global files.";
 
 function init (done) {
-    if (!fs.existsSync(path.join(__dirname, `boilerplates/${process.env.BOILERPLATE}`))) {
+  if (!fs.existsSync(path.resolve(path.join(__dirname, `boilerplates/${process.env.BOILERPLATE}`)))) {
         console.warn("[WARN]: Boilerplate not found. Tablao will continue with the default vanilla.js boilerplate.");
         process.env.BOILERPLATE = "vanilla";
     }
-    return src(path.join(__dirname, `boilerplates/${process.env.BOILERPLATE}/**/*`), {read: true})
+  return src(path.resolve(path.join(__dirname, `boilerplates/${process.env.BOILERPLATE}/**/*`), {read: true}))
         .pipe(dest(cwd));
 }
 init.description = "Create the boilerplate directory.";
@@ -81,7 +81,7 @@ exports.init = init;
 
 function clean (done) {
   return del([
-    path.join(distDir + "\*")
+    path.resolve(path.join(distDir + "\*"))
   ], {
     force: true
   });
@@ -92,21 +92,21 @@ function dist (done) {
   if (!fs.existsSync(distDir)) {
     fs.mkdirSync(distDir);
   }
-  const public = path.join(distDir, "public");
+  const public = path.resolve(path.join(distDir, "public"));
   return src("*.*", {read: false})
     .pipe(dest(public));
 };
 dist.description = "Create dist directory structure";
 
 function deploy (done) {
-  return src(path.join(distDir, "\*"))
-    .pipe(dest(path.join(rc.dist)));
+  return src(path.resolve(path.join(distDir, "\*")))
+    .pipe(dest(path.resolve(path.join(rc.dist))));
 }
 deploy.description = 'Deploy bundling to the server';
 
 function js (done) {
   const b = browserify({
-      entries: path.join(rc.src, "index.js"),
+      entries: path.resolve(path.join(rc.src, "index.js")),
       debug: process.env.NODE_ENV === "dev"
   });
 
@@ -131,7 +131,7 @@ function js (done) {
 js.description = 'Bundle js files, compile them with buble and uglify and move the output to the dist folder';
 
 function css (done) {
-  return src(path.join(rc.src, "index.styl"))
+  return src(path.resolve(path.join(rc.src, "index.styl")))
     .pipe(sourcemaps.init({loadMaps: true}))
       .pipe(stylus({
         compress: true,
@@ -146,15 +146,15 @@ function css (done) {
 css.descriptions = "Bundle all styuls files, compile them and move the output to the dist folder";
 
 function public (done) {
-  return src(path.join(rc.public, "\*\*/\*"))
+  return src(path.resolve(path.join(rc.public, "\*\*/\*")))
         .pipe(connect.reload())
-        .pipe(dest(path.join(distDir, rc.public)));
+    .pipe(dest(path.resolve(path.join(distDir, rc.public))));
 }
 public.description = "Move public to dist folder";
 
 
 function html (done) {
-  return src(path.join(rc.src, "index.html"))
+  return src(path.resolve(path.join(rc.src, "index.html")))
     .pipe(replace({global: globals()}))
     .pipe(htmlmin({collapseWhitespace: true}))
     .pipe(connect.reload())
@@ -176,10 +176,10 @@ const serve = series(pipeline, function serve (done) {
     middleware: rc.middleware
   });
 
-  watch(path.join(rc.src, "index.html"), series(html));
-  watch(path.join(rc.src, "\*\*/\*.js"), series(js));
-  watch(path.join(rc.src, "\*\*/\*.styl|css"), series(css));
-  watch(path.join(rc.public, "\*\*/\*"), series(public));
+  watch(path.resolve(path.join(rc.src, "index.html")), series(html));
+  watch(path.resolve(path.join(rc.src, "\*\*/\*.js")), series(js));
+  watch(path.resolve(path.join(rc.src, "\*\*/\*.styl|css")), series(css));
+  watch(path.resolve(path.join(rc.public, "\*\*/\*")), series(public));
 });
 serve.description = "Setup a static server, start a livereload listener and put gulp watching for changes";
 exports.serve = serve;
