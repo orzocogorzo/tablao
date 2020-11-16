@@ -99,7 +99,7 @@ function dist (done) {
 dist.description = "Create dist directory structure";
 
 function deploy (done) {
-  return src(path.resolve(path.join(distDir, "\*")))
+  return src(path.resolve(path.join(distDir, "\*\*\/\*")))
     .pipe(dest(path.resolve(path.join(rc.dist))));
 }
 deploy.description = 'Deploy bundling to the server';
@@ -176,10 +176,10 @@ const serve = series(pipeline, function serve (done) {
     middleware: rc.middleware
   });
 
-  watch(path.resolve(path.join(rc.src, "index.html")), series(html));
-  watch(path.resolve(path.join(rc.src, "\*\*/\*.js")), series(js));
-  watch(path.resolve(path.join(rc.src, "\*\*/\*.styl|css")), series(css));
-  watch(path.resolve(path.join(rc.public, "\*\*/\*")), series(public));
+  watch(path.resolve(path.join(rc.src, "index.html")), html);
+  watch(path.resolve(path.join(rc.src, "\*\*\/\*.js")), js);
+  watch(path.resolve(path.join(rc.src, "\*\*\/\*.styl|css")), css);
+  watch(path.resolve(path.join(rc.public, "\*\*\/\*")), public);
 });
 serve.description = "Setup a static server, start a livereload listener and put gulp watching for changes";
 exports.serve = serve;
